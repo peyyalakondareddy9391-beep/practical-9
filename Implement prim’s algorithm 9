@@ -1,0 +1,58 @@
+import heapq
+
+def prim(graph, start):
+    """
+    graph: adjacency list
+           {vertex: [(weight, neighbor), ...]}
+    start: starting vertex
+
+    Returns:
+        mst_edges: list of (u, v, weight)
+        total_cost: total weight of the MST
+    """
+
+    visited = set()
+    min_heap = [(0, start, None)]
+    mst_edges = []
+    total_cost = 0
+
+    while min_heap:
+        weight, vertex, parent = heapq.heappop(min_heap)
+
+        if vertex in visited:
+            continue
+
+        visited.add(vertex)
+        total_cost += weight
+
+        if parent is not None:
+            mst_edges.append((parent, vertex, weight))
+
+        for edge_weight, neighbor in graph[vertex]:
+            if neighbor not in visited:
+                heapq.heappush(
+                    min_heap,
+                    (edge_weight, neighbor, vertex)
+                )
+
+    if len(visited) != len(graph):
+        raise ValueError("Graph is disconnected; no spanning tree exists.")
+
+    return mst_edges, total_cost
+
+
+# Example
+graph = {
+    'A': [(2, 'B'), (3, 'D')],
+    'B': [(2, 'A'), (1, 'C'), (4, 'D')],
+    'C': [(1, 'B'), (5, 'D')],
+    'D': [(3, 'A'), (4, 'B'), (5, 'C')]
+}
+
+edges, cost = prim(graph, 'A')
+
+print("MST edges:")
+for u, v, w in edges:
+    print(f"{u} -- {v} : {w}")
+
+print("Total cost:", cost)
